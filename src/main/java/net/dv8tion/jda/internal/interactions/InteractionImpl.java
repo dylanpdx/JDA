@@ -18,6 +18,7 @@ package net.dv8tion.jda.internal.interactions;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.exceptions.ParsingException;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.data.DataObject;
@@ -40,15 +41,23 @@ public class InteractionImpl implements Interaction
     protected final User user;
     protected final AbstractChannel channel;
     protected final JDAImpl api;
+    protected final DataObject resolvedRaw;
 
     public InteractionImpl(JDAImpl jda, DataObject data)
     {
+        DataObject resolvedRawTemp;
         this.api = jda;
         this.id = data.getUnsignedLong("id");
         this.token = data.getString("token");
         this.type = data.getInt("type");
         this.guild = jda.getGuildById(data.getUnsignedLong("guild_id", 0L));
         this.hook = new InteractionHookImpl(this, jda);
+        try{
+            resolvedRawTemp =data.getObject("data").getObject("resolved");
+        }catch (ParsingException parseEx){
+            resolvedRawTemp =null;
+        }
+        this.resolvedRaw = resolvedRawTemp;
         if (guild != null)
         {
             member = jda.getEntityBuilder().createMember((GuildImpl) guild, data.getObject("member"));
@@ -85,6 +94,7 @@ public class InteractionImpl implements Interaction
         this.channel = channel;
         this.api = (JDAImpl) user.getJDA();
         this.hook = new InteractionHookImpl(this, api);
+        this.resolvedRaw=null;
     }
 
     @Override
