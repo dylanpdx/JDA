@@ -97,6 +97,10 @@ public class InteractionImpl implements Interaction
         this.resolvedRaw=null;
     }
 
+    public DataObject getResolvedRaw(){
+        return resolvedRaw;
+    }
+
     @Override
     public long getIdLong()
     {
